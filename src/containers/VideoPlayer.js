@@ -25,46 +25,95 @@ class VideoPlayer extends Component {
   }
 
   addNewVideo = (video) => {
-    this.state.videos.filter(v => v.id === video.id).length === 0 && this.setState(prevState => {
+    if( this.state.videos.filter(v => v.id === video.id).length === 0 ){
+      this.setState(prevState => {
+        let newState = {
+          videos: [...prevState.videos.map(v => {
+            return {
+              id: v.id, 
+              url: v.url,
+              play: false,
+              error: typeof v.error !== "undefined"?v.error: false
+            }
+          }), { 
+            id: video.id, 
+            url: video.url,
+            play: true,
+            error: false
+          }],
+          active_video_id: video.id
+        };
 
-      let newState = {
-        videos: [...prevState.videos.map(v => {
-        return {
-          id: v.id, 
-          url: v.url,
-          play: false
-        }
-        }), { 
-          id: video.id, 
-          url: video.url,
-          play: true
-        }],
-        active_video_id: video.id
-      };
+        localStorage.setItem("youtube_app_videos", JSON.stringify(newState));
 
-      localStorage.setItem("youtube_app_videos", JSON.stringify(newState));
+        return (newState);
+      });
+    } else {
+      this.setState(prevState => {
+        let newState = {
+          videos: prevState.videos.map(v => {
+            return {
+              id: v.id, 
+              url: v.url,
+              play: video.id === v.id,
+              error: typeof v.error !== "undefined"?v.error: false
+            }
+          }),
+          active_video_id: video.id
+        };
 
-      return (newState);
-    });
+        localStorage.setItem("youtube_app_videos", JSON.stringify(newState));
+
+        return (newState);
+      });
+    }
   } 
 
   playOnClick = (video_id) => {
     
     this.setState(prevState => {
       
-      let videos = this.state.videos.map( video => {
+      let videos = prevState.videos.map( video => {
         return {
           id: video.id, 
           url: video.url,
-          play: video_id === video.id
+          play: video_id === video.id,
+          error: typeof video.error !== "undefined"?video.error: false
         }
       });
 
-      return {
-        videos,
-        active_video_id: video_id
-      }
+      let hasError = videos.filter(v => ((typeof v.error !== "undefined" && v.error) && v.id === video_id)).length > 0;
+
+      let newState = {
+        videos: videos.filter(v => !((typeof v.error !== "undefined" && v.error) && v.id === video_id)),
+        active_video_id: hasError ? false : video_id
+      };
+
+      localStorage.setItem("youtube_app_videos", JSON.stringify(newState));
+
+      return newState;
       
+    });
+
+  }
+
+  removeVideoOnError = () => {
+    let that = this;
+    this.setState(prevState => {
+      let validRandomVideoId = prevState.videos.filter(v => ((typeof v.error !== "undefined" && v.error) && v.id === that.state.active_video_id));
+      return {
+        videos: prevState.videos.map(v => {
+          return {
+            id: v.id, 
+            url: v.url,
+            play: false,
+            error: that.state.active_video_id === v.id
+          }
+        }),
+        active_video_id: (validRandomVideoId.length > 0 ? validRandomVideoId[0] : false)
+      }
+    }, () => {
+      localStorage.setItem("youtube_app_videos", JSON.stringify(that.state));
     });
   }
 
@@ -87,6 +136,7 @@ class VideoPlayer extends Component {
                       autoplay: 1
                     }
                   }}
+                  onError={this.removeVideoOnError}
                   onReady={event => event.target.pauseVideo()}
                 /> }
               </div>

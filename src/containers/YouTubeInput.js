@@ -25,9 +25,19 @@ class YouTubeInput extends Component {
 
   youtube_parser = (url) => {
     // eslint-disable-next-line
-    var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
-    var match = url.match(regExp);
-    return (match && match[7].length === 11) ? match[7] : false;
+    let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+    let match = url.match(regExp);
+    let video_id = (match && match[7].length === 11) ? match[7] : false;
+
+    if(video_id === false){
+      let url_arr = url.split('v=');
+      if(url_arr.length > 1){
+        video_id = url_arr[1].split('&');
+        return video_id[0];
+      }
+    }
+
+    return video_id;
   }
 
   onClick = (e) => {
@@ -43,7 +53,7 @@ class YouTubeInput extends Component {
 
     let video_id = this.youtube_parser(url);
 
-    if (video_id.length > 0) {
+    if (video_id !== false) {
       this.props.addNewVideo({
         id: video_id,
         url: url

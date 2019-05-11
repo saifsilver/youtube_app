@@ -8,19 +8,21 @@ import {styles} from './VideoListStyles';
 
 import PlayCircleFilledRounded from '@material-ui/icons/PlayCircleFilledRounded';
 import PauseCircleFilledRounded from '@material-ui/icons/PauseCircleFilledRounded';
+import ErrorSharp from '@material-ui/icons/ErrorSharp';
 
 function VideoList(props) {
   let { classes, playOnClick, videos} = props;
-
+  
   const videos_objs = videos.length > 0 ? videos.map( video => {
+    let hasError = typeof video.error !== "undefined" && video.error;
     return (
       <ListItem button className={classes.videoItem} alignItems="flex-start" key={`video-${video.id}`} onClick={playOnClick.bind(this,video.id.toString())}>
-        { video.play ? <PauseCircleFilledRounded className={classes.icons} /> : <PlayCircleFilledRounded className={classes.icons} /> }
+        { hasError ? <ErrorSharp color="error" className={classes.icons} /> : video.play ? <PauseCircleFilledRounded className={classes.icons} /> : <PlayCircleFilledRounded className={classes.icons} />}
         <ListItemText
-          primary="Video"
+          primary={ hasError ? 'Click to remove from history': "Video" }
           secondary={
             <React.Fragment>
-              <Typography component="span" color="textPrimary">
+              <Typography component="span" color={hasError ? 'error' : 'textPrimary'}>
                 {video.url}
               </Typography>
             </React.Fragment>
