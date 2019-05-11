@@ -3,15 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.9.3",
+    "@material-ui/icons": "^3.0.2",
+    "@material-ui/styles": "^3.0.0-alpha.10",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-scripts": "3.0.1"
+    "react-redux": "^7.0.3",
+    "react-scripts": "3.0.1",
+    "react-youtube": "^7.9.0",
+    "uuid": "^3.3.2",
+    "webpack": "^4.31.0",
+    "youtube-validate": "^1.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:nowatch": "CI=true react-scripts test --env=jsdom"
   },
   "eslintConfig": {
     "extends": "react-app"
